@@ -2,7 +2,7 @@ import { Type } from "typebox";
 import { execFile } from "node:child_process";
 import { createHash } from "node:crypto";
 import { promisify } from "node:util";
-import { chmod, mkdir, readFile, readdir, rename, stat, utimes, writeFile } from "node:fs/promises";
+import { chmod, mkdir, readFile, readdir, realpath, rename, stat, utimes, writeFile } from "node:fs/promises";
 import { DatabaseSync } from "node:sqlite";
 import { basename, dirname, isAbsolute, join, resolve } from "node:path";
 const execFileAsync = promisify(execFile);
@@ -1061,10 +1061,14 @@ export default function (pi) {
                 return;
             }
             const oldCwd = normalizeDir(ctx.cwd);
-            const targetCwd = normalizeDirArg(target, ctx.cwd);
+            let targetCwd = normalizeDirArg(target, ctx.cwd);
             try {
                 if (!(await ensureTargetDirectory(targetCwd, force, false, ctx.ui.confirm)))
                     return;
+                // Pi keys default session buckets by the cwd string rather than filesystem
+                // identity. Resolve symlinks after ensuring the directory exists so aliases
+                // such as ~/docs and ~/Documents share one canonical session bucket.
+                targetCwd = normalizeDir(await realpath(targetCwd));
             }
             catch (error) {
                 ctx.ui.notify(error instanceof Error ? error.message : String(error), "error");

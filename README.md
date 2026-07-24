@@ -93,7 +93,7 @@ This is not a user slash command. User-facing actions are `/move`, `/lineage-nam
 
 ## Which command should I use?
 
-- Use `/move` to copy the current live session to another cwd bucket and write restart guidance.
+- Use `/move` to copy the current live session to another cwd bucket and write restart guidance. Existing targets are canonicalized through symlinks first, so aliases such as `~/docs` and `~/Documents` share one session bucket.
 - Use `pi-repo-move`'s `/repo-move <target>` to move the current repo directory on disk and preserve its session history.
 - Use `/lineage-name <name>` to pin a durable name for the current lineage branch.
 - Use `/move-prune --dry-run` to preview cleanup of superseded source session files.
